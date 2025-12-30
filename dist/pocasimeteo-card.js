@@ -951,16 +951,16 @@
 
         .hourly-forecast-tooltip {
           position: absolute;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          background: var(--card-background-color, rgba(255, 255, 255, 0.95));
+          border: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
           border-radius: 4px;
           padding: 6px 8px;
           font-size: 9px;
-          color: rgba(255, 255, 255, 0.95);
+          color: var(--primary-text-color, #000);
           pointer-events: none;
           z-index: 1000;
           white-space: nowrap;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
           display: none;
           line-height: 1.2;
           backdrop-filter: blur(10px);
