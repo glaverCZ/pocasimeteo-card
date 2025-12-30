@@ -127,31 +127,39 @@
       const entity = this._hass.states[this.config.entity];
       if (!entity) return;
 
-      // Zj isti stanici z entity_id (weather.pocasimeteo_STATION_MODEL)
+      // Zj isti stanici z entity_id
+      // Podporuje obě varianty:
+      // 1. weather.pocasimeteo_praha_6_ruzyne (bez indexu)
+      // 2. weather.pocasimeteo_praha_6_ruzyne_2 (s indexem)
       const entityId = this.config.entity;
       const models = [];
 
-      // Extrahuj stanici z primární entity
-      const match = entityId.match(/pocasimeteo_([a-z0-9_]+?)(?:_[a-z]+)?$/);
+      // Extrahuj stanici a číselný suffix (pokud existuje)
+      // Př: weather.pocasimeteo_praha_6_ruzyne_2 → station=praha_6_ruzyne, suffix=_2
+      // Př: weather.pocasimeteo_praha_6_ruzyne → station=praha_6_ruzyne, suffix=''
+      const match = entityId.match(/pocasimeteo_([a-z0-9_]+?)(_\d+)?$/);
       if (!match) {
         console.log('[PočasíMeteo Card] Regex neparsoval entity_id:', entityId);
         return;
       }
 
-      const station = match[1]; // praha_6_ruzyne nebo brno, atd.
+      const station = match[1]; // praha_6_ruzyne
+      const suffix = match[2] || ''; // _2 nebo prázdný string
       const prefix = `weather.pocasimeteo_${station}`;
-      console.log('[PočasíMeteo Card] Detekovaná stanice:', station, 'Prefix:', prefix);
+      console.log('[PočasíMeteo Card] Detekovaná stanice:', station, 'Suffix:', suffix || 'žádný', 'Prefix:', prefix);
 
       // Zkus najít entity pro každý model
       this._modelConfigs.forEach(modelConfig => {
         const modelLower = modelConfig.name.toLowerCase();
-        let entityIdToCheck = prefix;
+        let entityIdToCheck;
 
-        // Primární entita (bez suffixu) je primární model
+        // Primární entita (MASTER) je bez model suffixu
+        // weather.pocasimeteo_praha_6_ruzyne nebo weather.pocasimeteo_praha_6_ruzyne_2
         if (modelConfig.name === 'MASTER') {
-          entityIdToCheck = prefix;
+          entityIdToCheck = `${prefix}${suffix}`;
         } else {
-          entityIdToCheck = `${prefix}_${modelLower}`;
+          // Ostatní modely: weather.pocasimeteo_praha_6_ruzyne_gfs nebo _gfs_2
+          entityIdToCheck = `${prefix}_${modelLower}${suffix}`;
         }
 
         // Zkontroluj, zda entita existuje
