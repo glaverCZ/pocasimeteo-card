@@ -2757,7 +2757,7 @@
                 console.warn(`✗ Icon failed to load: ${iconFileName} (code: ${d.icon_code})`);
                 reject(d.icon_code);
               };
-              img.src = `/local/icons/${iconFileName}`;
+              img.src = `/hacsfiles/pocasimeteo-card/icons/${iconFileName}`;
             });
             iconLoadPromises.push(iconPromise);
           }
@@ -3009,7 +3009,7 @@
           const iconFileName = this._getWeatherIconFileName(d.icon_code);
           console.log(`🎨 Tooltip icon: code=${d.icon_code}, fileName=${iconFileName}, cached=${!!this._imageCache[iconFileName]}`);
           const iconImg = this._imageCache[iconFileName] ?
-            `<img src="/local/icons/${iconFileName}" style="width: 18px; height: 18px; margin-bottom: 2px; display: block; margin-left: auto; margin-right: auto;" alt="weather">` :
+            `<img src="/hacsfiles/pocasimeteo-card/icons/${iconFileName}" style="width: 18px; height: 18px; margin-bottom: 2px; display: block; margin-left: auto; margin-right: auto;" alt="weather">` :
             `<div style="font-size: 20px; margin-bottom: 2px;">${this._getEmojiIcon(d.icon_code, d.condition)}</div>`;
 
           tooltip.innerHTML = `
