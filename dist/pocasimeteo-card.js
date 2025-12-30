@@ -2855,13 +2855,8 @@
           ctx.textBaseline = 'top';
           ctx.fillStyle = getRGBColor(textColor);
 
-          // Calculate step based on available width
-          let step = 1;
-          if (chartData.length > 36) {
-            step = Math.ceil(chartData.length / 12); // Show ~12 labels max
-          } else if (chartData.length > 12) {
-            step = Math.ceil(chartData.length / 8); // Show ~8 labels
-          }
+          // Use same step as icons for consistent spacing
+          const step = iconStep;
 
           chartData.forEach((d, idx) => {
             if (idx % step === 0 || idx === chartData.length - 1) {
@@ -2939,13 +2934,8 @@
           ctx.textBaseline = 'top';
           ctx.fillStyle = getRGBColor(textColor);
 
-          // Calculate step based on available width
-          let step = 1;
-          if (chartData.length > 36) {
-            step = Math.ceil(chartData.length / 12); // Show ~12 labels max
-          } else if (chartData.length > 12) {
-            step = Math.ceil(chartData.length / 8); // Show ~8 labels
-          }
+          // Use same step as icons for consistent spacing
+          const step = iconStep;
 
           chartData.forEach((d, idx) => {
             if (idx % step === 0 || idx === chartData.length - 1) {
