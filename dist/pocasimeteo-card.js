@@ -108,8 +108,8 @@
       // První render
       if (!this.shadowRoot.hasChildNodes()) {
         this._buildAvailableModels();
-        this._autoSelectBestModel(); // Vybrat nejpřesnější model na začátku
         this._render();
+        this._autoSelectBestModel(); // Vybrat nejpřesnější model PO renderu
         this._setupHourlyRefresh(); // Setup hourly refresh for forecast updates
         this._updateModelAccuracy(); // Load accuracy history for colors
       } else {
