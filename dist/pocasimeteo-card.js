@@ -2731,42 +2731,22 @@
         iconStep = 2; // Every 2nd icon for 19-24 hours
       }
 
-      // Preload icons for display - use cache to prevent flickering
+      // Preload ALL icons to cache (for tooltips), but only draw some in chart
       const iconSize = 20; // Size of weather icons
       const iconsToDraw = [];
       const iconLoadPromises = [];
 
+      // First pass: Load all icons into cache (for tooltip support)
       chartData.forEach((d, idx) => {
-        if (d.temperature !== null && idx % iconStep === 0) {
-          const x = getX(idx);
-          const y = getY(d.temperature);
+        if (d.temperature !== null) {
           const iconFileName = this._getWeatherIconFileName(d.icon_code);
-          if (idx === 0 || idx === iconStep) {
-            console.log(`🎯 Chart icon ${idx}: code=${d.icon_code}, mapped=${iconFileName}`);
-          }
 
-          // Track what needs to be drawn with temperature
-          iconsToDraw.push({
-            idx,
-            x,
-            y,
-            temperature: d.temperature,
-            iconFileName,
-            condition: d.condition,
-            iconCode: d.icon_code
-          });
-
-          // Check cache first, otherwise load
-          if (this._imageCache[iconFileName]) {
-            // Already cached, will be drawn immediately
-            iconLoadPromises.push(Promise.resolve(this._imageCache[iconFileName]));
-          } else {
-            // Not in cache, load it
+          // Load into cache if not already there
+          if (!this._imageCache[iconFileName]) {
             const iconPromise = new Promise((resolve, reject) => {
               const img = new Image();
               img.onload = () => {
-                this._imageCache[iconFileName] = img; // Cache it
-                console.log(`✓ Icon loaded: ${iconFileName}`);
+                this._imageCache[iconFileName] = img;
                 resolve(img);
               };
               img.onerror = () => {
@@ -2777,6 +2757,25 @@
             });
             iconLoadPromises.push(iconPromise);
           }
+        }
+      });
+
+      // Second pass: Mark which icons to draw in chart (every iconStep)
+      chartData.forEach((d, idx) => {
+        if (d.temperature !== null && idx % iconStep === 0) {
+          const x = getX(idx);
+          const y = getY(d.temperature);
+          const iconFileName = this._getWeatherIconFileName(d.icon_code);
+
+          iconsToDraw.push({
+            idx,
+            x,
+            y,
+            temperature: d.temperature,
+            iconFileName,
+            condition: d.condition,
+            iconCode: d.icon_code
+          });
         }
       });
 
@@ -2798,18 +2797,20 @@
 
       // Load icons and draw with images + temperature labels
       Promise.all(iconLoadPromises)
-        .then((images) => {
-          // All icons loaded successfully, draw them with temperature
-          images.forEach((img, i) => {
-            const icon = iconsToDraw[i];
-            ctx.drawImage(img, icon.x - iconSize / 2, icon.y - iconSize / 2, iconSize, iconSize);
+        .then(() => {
+          // All icons loaded successfully, draw the selected ones with temperature
+          iconsToDraw.forEach((icon) => {
+            const img = this._imageCache[icon.iconFileName];
+            if (img) {
+              ctx.drawImage(img, icon.x - iconSize / 2, icon.y - iconSize / 2, iconSize, iconSize);
 
-            // Draw temperature above icon
-            ctx.font = 'bold 10px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'bottom';
-            ctx.fillStyle = getRGBColor(accentColor);
-            ctx.fillText(Math.round(icon.temperature), icon.x, icon.y - iconSize / 2 - 2);
+              // Draw temperature above icon
+              ctx.font = 'bold 10px Arial';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'bottom';
+              ctx.fillStyle = getRGBColor(accentColor);
+              ctx.fillText(Math.round(icon.temperature), icon.x, icon.y - iconSize / 2 - 2);
+            }
           });
 
           // Draw Y-axis labels and gridlines
