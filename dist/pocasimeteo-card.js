@@ -2439,7 +2439,7 @@
       }
 
       const img = document.createElement('img');
-      img.src = `/hacsfiles/pocasimeteo-card/icons/${iconFileName}`;
+      img.src = `./icons/${iconFileName}`;
       img.alt = condition || 'weather';
 
       // Fallback na emoji ikony pokud se obrázek nenačte
@@ -2749,7 +2749,7 @@
                 console.warn(`✗ Icon failed to load: ${iconFileName} (code: ${d.icon_code})`);
                 reject(d.icon_code);
               };
-              img.src = `/hacsfiles/pocasimeteo-card/icons/${iconFileName}`;
+              img.src = `./icons/${iconFileName}`;
             });
             iconLoadPromises.push(iconPromise);
           }
@@ -3005,7 +3005,7 @@
           // Get PNG icon
           const iconFileName = this._getWeatherIconFileName(d.icon_code);
           const iconImg = this._imageCache[iconFileName] ?
-            `<img src="/hacsfiles/pocasimeteo-card/icons/${iconFileName}" style="width: 18px; height: 18px; margin-bottom: 2px; display: block; margin-left: auto; margin-right: auto;" alt="weather">` :
+            `<img src="./icons/${iconFileName}" style="width: 18px; height: 18px; margin-bottom: 2px; display: block; margin-left: auto; margin-right: auto;" alt="weather">` :
             `<div style="font-size: 20px; margin-bottom: 2px;">${this._getEmojiIcon(d.icon_code, d.condition)}</div>`;
 
           tooltip.innerHTML = `
