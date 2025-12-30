@@ -2427,7 +2427,7 @@
       }
 
       const img = document.createElement('img');
-      img.src = `/local/icons/${iconFileName}`;
+      img.src = `/hacsfiles/pocasimeteo-card/icons/${iconFileName}`;
       img.alt = condition || 'weather';
 
       // Fallback na emoji ikony pokud se obrázek nenačte
