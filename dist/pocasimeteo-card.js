@@ -445,6 +445,13 @@
 
     _autoSelectBestModel() {
       console.log('[PočasíMeteo] _autoSelectBestModel() called');
+
+      // Auto-select funguje jen když je nastavena temperature_entity nebo jiná reference
+      if (!this._temperatureEntity && !this._bestMatchTemperatureEntity) {
+        console.log('[PočasíMeteo] No reference entity, skipping auto-select - using config entity');
+        return false;
+      }
+
       if (!this._hass || !this._availableModels.length) {
         console.log('[PočasíMeteo] Missing hass or available models, returning');
         return;
