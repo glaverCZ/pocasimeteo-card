@@ -133,10 +133,14 @@
 
       // Extrahuj stanici z primární entity
       const match = entityId.match(/pocasimeteo_([a-z0-9_]+?)(?:_[a-z]+)?$/);
-      if (!match) return;
+      if (!match) {
+        console.log('[PočasíMeteo Card] Regex neparsoval entity_id:', entityId);
+        return;
+      }
 
       const station = match[1]; // praha_6_ruzyne nebo brno, atd.
       const prefix = `weather.pocasimeteo_${station}`;
+      console.log('[PočasíMeteo Card] Detekovaná stanice:', station, 'Prefix:', prefix);
 
       // Zkus najít entity pro každý model
       this._modelConfigs.forEach(modelConfig => {
@@ -151,7 +155,10 @@
         }
 
         // Zkontroluj, zda entita existuje
-        if (this._hass.states[entityIdToCheck]) {
+        const exists = !!this._hass.states[entityIdToCheck];
+        console.log('[PočasíMeteo Card] Model', modelConfig.name, '- hledám:', entityIdToCheck, '- existuje:', exists);
+
+        if (exists) {
           models.push({
             name: modelConfig.name,
             label: modelConfig.label,
@@ -160,6 +167,7 @@
         }
       });
 
+      console.log('[PočasíMeteo Card] Nalezené modely:', models.length, models.map(m => m.name).join(', '));
       this._availableModels = models;
       // Pokud se dostupné modely změnily a není vybraný model, zvol první
       if (models.length > 0 && !this._selectedEntityId) {
