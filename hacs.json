@@ -1,0 +1,7 @@
+{
+  "name": "PočasíMeteo Card",
+  "filename": "pocasimeteo-card.js",
+  "country": ["CZ"],
+  "homeassistant": "2024.1.0",
+  "render_readme": true
+}
