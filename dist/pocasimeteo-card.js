@@ -47,9 +47,9 @@
         { name: 'WRF', label: 'WRF' }
       ];
 
-      // Reference entity pro detekci nejpřesnějšího modelu (rozšířené - více parametrů)
-      this._bestMatchTemperatureEntity = config.best_match_temperature_entity || config.temperature_entity;
-      this._temperatureEntity = config.temperature_entity;
+      // Reference entity pro detekci nejpřesnějšího modelu a zobrazení rozdílů
+      // Backward compatibility: preferujeme temperature_entity, ale akceptujeme i staré best_match_temperature_entity
+      this._temperatureEntity = config.temperature_entity || config.best_match_temperature_entity;
       this._bestMatchModel = null; // Bude nastaven později
 
       // Nové reference entity pro rozšířený výpočet skóre modelu
@@ -210,11 +210,11 @@
     }
 
     _selectBestModel() {
-      if (!this._bestMatchTemperatureEntity || !this._hass || !this._availableModels.length) {
+      if (!this._temperatureEntity || !this._hass || !this._availableModels.length) {
         return;
       }
 
-      const tempEntity = this._hass.states[this._bestMatchTemperatureEntity];
+      const tempEntity = this._hass.states[this._temperatureEntity];
       if (!tempEntity) return;
 
       const refTemp = tempEntity.state;
@@ -254,7 +254,7 @@
        * Vypočítá skóre přesnosti pro všechny modely na základě více parametrů
        * Vrací: { modelName: { score: 85, tier: 'green', breakdown: {...} }, ... }
        */
-      if (!this._bestMatchTemperatureEntity || !this._hass || !this._availableModels.length) {
+      if (!this._temperatureEntity || !this._hass || !this._availableModels.length) {
         return {};
       }
 
@@ -263,7 +263,7 @@
       const modelValues = {}; // { paramName: [value1, value2, ...] }
 
       // 1. Sesbírám reference hodnoty z entit
-      const refTemp = this._hass.states[this._bestMatchTemperatureEntity];
+      const refTemp = this._hass.states[this._temperatureEntity];
       if (!refTemp || refTemp.state === 'unknown') return {};
       referenceValues.temperature = parseFloat(refTemp.state);
       if (isNaN(referenceValues.temperature)) return {};
@@ -472,9 +472,9 @@
     _autoSelectBestModel() {
       console.log('[PočasíMeteo] _autoSelectBestModel() called');
 
-      // Auto-select funguje jen když je nastavena temperature_entity nebo jiná reference
-      if (!this._temperatureEntity && !this._bestMatchTemperatureEntity) {
-        console.log('[PočasíMeteo] No reference entity, skipping auto-select - using config entity');
+      // Auto-select funguje jen když je nastavena temperature_entity
+      if (!this._temperatureEntity) {
+        console.log('[PočasíMeteo] No temperature entity, skipping auto-select - using config entity');
         return false;
       }
 
@@ -1836,7 +1836,7 @@
       // Teplota (2 columns)
       const forecastTemp = currentHourData.temperature !== undefined ?
         currentHourData.temperature.toFixed(1) : (a.temperature !== undefined ? a.temperature.toFixed(1) : '--');
-      const refTempEntity = this._hass.states[this._bestMatchTemperatureEntity];
+      const refTempEntity = this._hass.states[this._temperatureEntity];
       let refTempHtml = null;
       if (refTempEntity && refTempEntity.state !== 'unknown') {
         const refTemp = parseFloat(refTempEntity.state);
@@ -1844,7 +1844,7 @@
         if (!isNaN(refTemp) && !isNaN(forecastTempNum)) {
           const tempDiff = forecastTempNum - refTemp;
           const tempDiffStr = tempDiff >= 0 ? `+${tempDiff.toFixed(1)}` : `${tempDiff.toFixed(1)}`;
-          const trendPromise = getTrendFromHistory(this._bestMatchTemperatureEntity);
+          const trendPromise = getTrendFromHistory(this._temperatureEntity);
           trends.temperature = { element: null, promise: trendPromise };
           // Inicializuj trend z cache, pokud existuje
           let temperatureTrend = '→';
@@ -3162,8 +3162,8 @@
       return {
         type: 'custom:pocasimeteo-card',
         entity: 'weather.pocasimeteo_praha_6_ruzyne',
-        // Volitelné: entita teploty pro automatickou detekci nejpřesnějšího modelu
-        best_match_temperature_entity: 'sensor.outdoor_temperature',
+        // Volitelné: entita teploty pro automatickou detekci nejpřesnějšího modelu a zobrazení rozdílů
+        temperature_entity: 'sensor.outdoor_temperature',
         // Volitelné: seznam modelů k zobrazení
         models: [
           { name: 'MASTER', label: 'Master' },
@@ -3182,11 +3182,11 @@
 
     _updateModelAccuracy() {
       // Track model accuracy by comparing forecast temps vs reference entity over 6 hours
-      if (!this._hass || !this._bestMatchTemperatureEntity || !this._availableModels.length) {
+      if (!this._hass || !this._temperatureEntity || !this._availableModels.length) {
         return;
       }
 
-      const refEntity = this._hass.states[this._bestMatchTemperatureEntity];
+      const refEntity = this._hass.states[this._temperatureEntity];
       if (!refEntity || refEntity.state === 'unknown') {
         return;
       }
@@ -3285,7 +3285,7 @@
       const { score, tier, breakdown } = scoreData;
 
       // Zjisti, zda máme nějaké reference entity
-      const hasReferenceEntities = this._bestMatchTemperatureEntity ||
+      const hasReferenceEntities = this._temperatureEntity ||
                                    this._referenceHumidityEntity ||
                                    this._referenceRainfallEntity ||
                                    this._referenceWindEntity ||

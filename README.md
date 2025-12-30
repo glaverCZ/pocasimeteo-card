@@ -80,10 +80,7 @@ To je vše! Card automaticky najde všechny modely pro vybranou stanici.
 type: custom:pocasimeteo-card
 entity: weather.pocasimeteo_praha_6_ruzyne
 
-# Automatický výběr nejpřesnějšího modelu
-best_match_temperature_entity: sensor.venku_teplota
-
-# Zobrazení rozdílu oproti skutečné hodnotě
+# Automatický výběr nejpřesnějšího modelu a zobrazení rozdílu oproti skutečné hodnotě
 temperature_entity: sensor.venku_teplota
 humidity_entity: sensor.venku_vlhkost
 wind_speed_entity: sensor.venku_vitr
@@ -125,8 +122,7 @@ Card zobrazí všechny modely, ale ALADIN bude předvybrán.
 
 | Parametr | Typ | Popis |
 |----------|-----|-------|
-| `best_match_temperature_entity` | string | Teplotní senzor pro automatický výběr nejlepšího modelu |
-| `temperature_entity` | string | Teplotní senzor pro zobrazení rozdílu v dlaždicích |
+| `temperature_entity` | string | Teplotní senzor pro automatický výběr nejlepšího modelu a zobrazení rozdílu v dlaždicích |
 | `reference_humidity_entity` | string | Vlhkostní senzor pro výpočet skóre modelu |
 | `reference_rainfall_entity` | string | Senzor srážek pro výpočet skóre modelu |
 | `reference_wind_entity` | string | Senzor rychlosti větru pro výpočet skóre modelu |
@@ -134,7 +130,7 @@ Card zobrazí všechny modely, ale ALADIN bude předvybrán.
 | `reference_pressure_entity` | string | Senzor tlaku pro výpočet skóre modelu |
 | `reference_wind_direction_entity` | string | Senzor směru větru pro výpočet skóre modelu |
 
-**Poznámka:** `temperature_entity` a `humidity_entity` lze použít i bez `reference_` prefixu (zpětná kompatibilita).
+**Poznámka:** Pro zpětnou kompatibilitu je podporován i starý název `best_match_temperature_entity`, ale doporučujeme používat `temperature_entity`.
 
 ### Pokročilé nastavení
 
@@ -176,18 +172,15 @@ model_accuracy_weights:
 
 ## 💡 Tipy
 
-### Jak funguje automatický výběr modelu?
+### Jak funguje automatický výběr modelu a zobrazení rozdílů?
 
-1. Nastavte `best_match_temperature_entity` na venkovní teplotní senzor
-2. Card pravidelně porovnává předpověď všech modelů se skutečnou hodnotou
-3. Automaticky vybírá model, který má **nejmenší chybu** za posledních 24 hodin
-4. Model s nejlepší přesností je označen **zeleným rámečkem**
-
-### Jak zobrazit rozdíly?
-
-Nastavte referenční senzory (`temperature_entity`, `humidity_entity`, atd.). Card pak ve dlaždicích zobrazí:
-- **Zelená hodnota** = předpověď odpovídá skutečnosti (rozdíl < 2°C)
-- **Červená hodnota** = větší rozdíl (> 2°C)
+1. Nastavte `temperature_entity` na venkovní teplotní senzor
+2. Card **automaticky vybírá nejpřesnější model** - porovnává předpověď všech modelů se skutečnou hodnotou a vybírá ten s **nejmenší chybou** za posledních 24 hodin
+3. Model s nejlepší přesností je označen **zeleným rámečkem**
+4. Card také **zobrazuje rozdíly** mezi předpovědí a skutečnou hodnotou v dlaždicích:
+   - **Zelená hodnota** = předpověď odpovídá skutečnosti (rozdíl < 2°C)
+   - **Červená hodnota** = větší rozdíl (> 2°C)
+5. Volitelně můžete přidat další reference entity (`reference_humidity_entity`, `reference_wind_entity`, atd.) pro komplexnější výpočet přesnosti modelů
 
 ### Lze změnit pořadí dlaždic?
 
