@@ -40,8 +40,8 @@
       this._modelConfigs = config.models || [
         { name: 'MASTER', label: 'MASTER' },
         { name: 'ALADIN', label: 'ALADIN' },
-        { name: 'ICON', label: 'ICONDE' },
-        { name: 'COSMO', label: 'ICONEU' },
+        { name: 'ICON', label: 'ICONEU' },  // ICON_data.json = ICON-EU (evropský)
+        { name: 'COSMO', label: 'ICONDE' },  // COSMO_data.json = ICON-DE (německý)
         { name: 'YRno', label: 'YRno' },
         { name: 'GFS', label: 'GFS' },
         { name: 'WRF', label: 'WRF' }
