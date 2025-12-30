@@ -2723,12 +2723,12 @@
 
       // Calculate icon density step
       let iconStep = 1;
-      if (chartData.length > 36) {
-        iconStep = Math.ceil(chartData.length / 8); // Show ~8 icons max
+      if (chartData.length > 48) {
+        iconStep = 3; // Every 3rd icon for 49+ hours (16 icons at 48h)
       } else if (chartData.length > 24) {
-        iconStep = Math.ceil(chartData.length / 10); // Show ~10 icons
-      } else if (chartData.length > 12) {
-        iconStep = Math.ceil(chartData.length / 12); // Show ~12 icons
+        iconStep = 2; // Every 2nd icon for 25-48 hours (18 icons at 36h)
+      } else if (chartData.length > 18) {
+        iconStep = 2; // Every 2nd icon for 19-24 hours
       }
 
       // Preload icons for display - use cache to prevent flickering
