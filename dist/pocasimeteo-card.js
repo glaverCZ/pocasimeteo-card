@@ -99,7 +99,6 @@
         'wind_direction'
       ];
 
-      console.log('[PočasíMeteo] setConfig - tile_order:', this._tileOrder);
     }
 
     set hass(hass) {
@@ -140,7 +139,6 @@
       // Regex: pocasimeteo_<station>_<model?>_<index?>
       const match = entityId.match(/pocasimeteo_(.+?)(_\d+)?$/);
       if (!match) {
-        console.log('[PočasíMeteo Card] Regex neparsoval entity_id:', entityId);
         return;
       }
 
@@ -162,7 +160,6 @@
       });
 
       const prefix = `weather.pocasimeteo_${station}`;
-      console.log('[PočasíMeteo Card] Detekovaná stanice:', station, 'Model v entity:', detectedModel || 'MASTER', 'Suffix:', suffix || 'žádný');
 
       // Zkus najít entity pro každý model
       this._modelConfigs.forEach(modelConfig => {
@@ -180,7 +177,6 @@
 
         // Zkontroluj, zda entita existuje
         const exists = !!this._hass.states[entityIdToCheck];
-        console.log('[PočasíMeteo Card] Model', modelConfig.name, '- hledám:', entityIdToCheck, '- existuje:', exists);
 
         if (exists) {
           models.push({
@@ -191,7 +187,6 @@
         }
       });
 
-      console.log('[PočasíMeteo Card] Nalezené modely:', models.length, models.map(m => m.name).join(', '));
       this._availableModels = models;
 
       // Nastav vybraný model:
@@ -201,10 +196,8 @@
         const configEntityInModels = models.find(m => m.entityId === this.config.entity);
         if (configEntityInModels) {
           this._selectedEntityId = configEntityInModels.entityId;
-          console.log('[PočasíMeteo Card] Vybraný model z config.entity:', configEntityInModels.name);
         } else {
           this._selectedEntityId = models[0].entityId;
-          console.log('[PočasíMeteo Card] Vybraný výchozí model:', models[0].name);
         }
       }
     }
@@ -403,10 +396,6 @@
         const score = Math.max(0, Math.min(100, weightedSum));
 
         // Debug log - podrobný rozpis
-        console.log(`[PočasíMeteo] ${model.name}:`);
-        console.log(`  breakdown:`, breakdown);
-        console.log(`  weightedSum=${weightedSum.toFixed(2)}`);
-        console.log(`  score=${score.toFixed(2)}, rounded=${Math.round(score)}`);
 
         // Určení barvy (tier)
         let tier = 'gray';
@@ -470,16 +459,13 @@
     }
 
     _autoSelectBestModel() {
-      console.log('[PočasíMeteo] _autoSelectBestModel() called');
 
       // Auto-select funguje jen když je nastavena temperature_entity
       if (!this._temperatureEntity) {
-        console.log('[PočasíMeteo] No temperature entity, skipping auto-select - using config entity');
         return false;
       }
 
       if (!this._hass || !this._availableModels.length) {
-        console.log('[PočasíMeteo] Missing hass or available models, returning');
         return;
       }
 
@@ -488,13 +474,11 @@
         const elapsedMinutes = (Date.now() - this._userModelSelectionTime) / 60000;
         if (elapsedMinutes < this._modelSelectionHysteresis) {
           // Still within hysteresis period, skip auto-select
-          console.log('[PočasíMeteo] In hysteresis period, skipping auto-select');
           return;
         } else {
           // Hysteresis expired, clear the flag
           this._userSelectedModel = false;
           this._userModelSelectionTime = null;
-          console.log('[PočasíMeteo] Hysteresis expired, resuming auto-select');
         }
       }
 
@@ -505,23 +489,16 @@
       let bestModel = null;
       let bestScore = -1;
 
-      console.log('[PočasíMeteo] Available models:', this._availableModels.map(m => ({ name: m.name, entityId: m.entityId })));
-      console.log('[PočasíMeteo] Scores keys:', Object.keys(scores));
-      console.log('[PočasíMeteo] Selecting best model from:', this._availableModels.map(m => m.name));
 
       this._availableModels.forEach(model => {
         const modelScore = scores[model.name]?.score;
-        console.log(`[PočasíMeteo] Checking ${model.name}: score=${modelScore}, current best=${bestScore}`);
         if (scores[model.name] && scores[model.name].score > bestScore) {
-          console.log(`[PočasíMeteo] → ${model.name} je nový best (${scores[model.name].score} > ${bestScore})`);
           bestScore = scores[model.name].score;
           bestModel = model;
         }
       });
 
       // Debug log
-      console.log('[PočasíMeteo] Model scores:', scores);
-      console.log('[PočasíMeteo] Final best model:', bestModel?.name, 'Score:', bestScore);
 
       // Uložit nejpřesnější model pro CSS označení
       this._bestMatchModel = bestModel;
@@ -1306,7 +1283,6 @@
     _startTimeUpdate() {
       // Pokud je interval už běží, nepřepisuj ho znovu
       if (this._timeUpdateInterval) {
-        console.log('[PočasíMeteo] Time update already scheduled, skipping');
         this._updateSystemTime(); // Ale aktualizuj čas hned
         return;
       }
@@ -1317,7 +1293,6 @@
       // Schedule next update synchronously at the start of the next minute
       const now = new Date();
       const secondsUntilNextMinute = (60 - now.getSeconds()) * 1000;
-      console.log(`[PočasíMeteo] Time update scheduled in ${Math.round(secondsUntilNextMinute / 1000)}s`);
 
       // Clear any existing time update timeout first
       if (this._timeUpdateTimeout) {
@@ -1325,14 +1300,12 @@
       }
 
       this._timeUpdateTimeout = setTimeout(() => {
-        console.log('[PočasíMeteo] Triggering time update at minute start');
         this._updateSystemTime();
         // Then update every minute
         if (this._timeUpdateInterval) {
           clearInterval(this._timeUpdateInterval);
         }
         this._timeUpdateInterval = setInterval(() => {
-          console.log('[PočasíMeteo] Updating time (interval)');
           this._updateSystemTime();
         }, 60000);
       }, secondsUntilNextMinute);
@@ -1488,7 +1461,6 @@
       if (entity && entity.attributes) {
         const dataAgeMins = entity.attributes.data_age_minutes;
         if (dataAgeMins !== undefined && dataAgeMins > 2) {
-          console.log(`Data are ${dataAgeMins} minutes old, requesting refresh...`);
           // Skryj první item v hodinové předpovědi (z minulé hodiny)
           const sr = this.shadowRoot;
           const hourlyContainer = sr.querySelector('#hourly');
@@ -1570,13 +1542,11 @@
       // Zavolej Home Assistant API k refreshu entity
       if (!this._hass || !this._selectedEntityId) return;
 
-      console.log(`[PočasíMeteo] Requesting refresh for ${this._selectedEntityId}`);
 
       // Call the refresh service
       this._hass.callService('homeassistant', 'update_entity', {
         entity_id: this._selectedEntityId
       }).then(() => {
-        console.log('[PočasíMeteo] Refresh service called successfully');
       }).catch((error) => {
         console.error('[PočasíMeteo] Refresh service error:', error);
       });
@@ -1728,7 +1698,6 @@
         const humDiffStr = humDiff >= 0 ? `+${humDiff.toFixed(0)}` : `${humDiff.toFixed(0)}`;
         const trendPromise = getTrendFromHistory(this._referenceHumidityEntity);
         trends.humidity = { element: null, promise: trendPromise };
-        console.log('[PočasíMeteo] Humidity trend added:', { refHumVal, humDiff, humDiffStr, entity: this._referenceHumidityEntity });
         // Inicializuj trend z cache, pokud existuje
         let humidityTrend = '→';
         if (this._displayedValuesCache['humidity']) {
@@ -1736,7 +1705,6 @@
         }
         refHumidityHtml = `${refHumVal.toFixed(0)}<br/><span style="font-size: 8px; opacity: 0.6;">${humDiffStr} <span class="weather-item-trend humidity-trend">${humidityTrend}</span></span>`;
       } else {
-        console.log('[PočasíMeteo] No humidity entity:', this._referenceHumidityEntity);
       }
       updateWeatherItem('#humidityCell', refHumidityHtml, forecastHumidity, 'humidity');
       this._styleWeatherItem('#humidityCell', !!refHumidityHtml);
@@ -2204,7 +2172,6 @@
             };
             chartData.push(entry);
             if (hoursCollected < 3) {
-              console.log(`📊 Chart entry ${hoursCollected}: time=${entry.time}, temp=${entry.temperature}, precip=${entry.precipitation}, icon=${entry.icon_code}`);
             }
             hoursCollected++;
           }
@@ -2275,7 +2242,6 @@
       const currentWeather = sr.querySelector('.current-weather');
       if (!currentWeather) return;
 
-      console.log('[PočasíMeteo] _applyTileOrder - tile_order:', this._tileOrder);
 
       const cellMapping = {
         'icon': '#iconCell',
@@ -2306,7 +2272,6 @@
       const isDefaultOrder = JSON.stringify(this._tileOrder) === JSON.stringify(defaultTileOrder);
 
       if (isDefaultOrder) {
-        console.log('[PočasíMeteo] DEFAULT LAYOUT detected');
         // DEFAULT LAYOUT - zobrazit vše normálně v originálním pořadí
         // Grid layout: 4 sloupce (1.2fr 1fr 1fr 1fr), 2 řádky
         // Row 1: Temperature (col 1), Humidity (col 2), Precipitation (col 3), Pressure (col 4)
@@ -2338,13 +2303,11 @@
         // Vrátit originální grid layout (bez změny)
         currentWeather.style.gridTemplateColumns = '';
         currentWeather.style.gridTemplateRows = '';
-        console.log('[PočasíMeteo] DEFAULT LAYOUT - grid reset, grid-template-columns will use CSS default');
 
         return;
       }
 
       // CUSTOM LAYOUT - aplikovat tile_order s reorderingem
-      console.log('[PočasíMeteo] CUSTOM LAYOUT detected, tile count:', this._tileOrder.length);
 
       // Skrýt/zobrazit dlaždice podle tile_order
       allTiles.forEach(tile => {
@@ -2880,7 +2843,6 @@
             ctx.font = '7px sans-serif';
             ctx.fillStyle = 'rgba(33, 150, 243, 0.8)';
             ctx.fillText(precip.toFixed(1), w - margin.right + 3, y);
-            console.log(`📊 Precip value: ${precip.toFixed(1)} at y=${y.toFixed(0)}`);
           }
 
           // Draw X-axis labels (time)
@@ -2959,7 +2921,6 @@
             ctx.font = '7px sans-serif';
             ctx.fillStyle = 'rgba(33, 150, 243, 0.8)';
             ctx.fillText(precip.toFixed(1), w - margin.right + 3, y);
-            console.log(`📊 Precip value: ${precip.toFixed(1)} at y=${y.toFixed(0)}`);
           }
 
           // Draw X-axis labels (time)
@@ -2999,11 +2960,9 @@
         const scale = this._scale || 1.0;
         const x = (e.clientX - rect.left) / scale;
         const y = (e.clientY - rect.top) / scale;
-        console.log(`🖱 Mouse move - x=${x.toFixed(0)}, y=${y.toFixed(0)}, scale=${scale}, margin.left=${margin.left}, margin.right=${margin.right}, w=${w}, check: ${x >= margin.left && x <= w - margin.right}`);
 
         // Only react to movement within chart area (left to right margin)
         if (x < margin.left || x > w - margin.right) {
-          console.log(`❌ Out of bounds - hiding tooltip`);
           tooltip.style.display = 'none';
           return;
         }
@@ -3018,13 +2977,11 @@
           }
         });
 
-        console.log(`📍 Closest point: idx=${closest.idx}, distance=${closest.distance.toFixed(1)}, mouse x=${x.toFixed(0)}, point px=${getX(closest.idx).toFixed(0)}`);
 
         if (closest.distance < 30) {
           const d = chartData[closest.idx];
           const wind = d.wind_speed !== null && d.wind_speed !== undefined ? `${d.wind_speed.toFixed(1)} m/s` : '--';
           const precip = d.precipitation !== null && d.precipitation !== undefined ? `${d.precipitation.toFixed(1)} mm` : '--';
-          console.log(`🎯 Tooltip data - idx: ${closest.idx}, time: ${d.time}, temp: ${d.temperature}, precip: ${d.precipitation}, displayed: ${precip}`);
 
           // Format time: "dnes 21", "zítra 04", etc.
           const now = new Date();
@@ -3047,7 +3004,6 @@
 
           // Get PNG icon
           const iconFileName = this._getWeatherIconFileName(d.icon_code);
-          console.log(`🎨 Tooltip icon: code=${d.icon_code}, fileName=${iconFileName}, cached=${!!this._imageCache[iconFileName]}`);
           const iconImg = this._imageCache[iconFileName] ?
             `<img src="/hacsfiles/pocasimeteo-card/icons/${iconFileName}" style="width: 18px; height: 18px; margin-bottom: 2px; display: block; margin-left: auto; margin-right: auto;" alt="weather">` :
             `<div style="font-size: 20px; margin-bottom: 2px;">${this._getEmojiIcon(d.icon_code, d.condition)}</div>`;
@@ -3072,7 +3028,6 @@
 
           tooltip.style.left = left + 'px';
           tooltip.style.top = top + 'px';
-          console.log(`📍 Tooltip positioned: left=${left.toFixed(0)}, top=${top.toFixed(0)}, pointX=${pointX.toFixed(0)}`);
         } else {
           tooltip.style.display = 'none';
         }
@@ -3148,7 +3103,6 @@
         }
 
         this._holidayFetchDate = todayKey;
-        console.log('Holiday loaded:', this._todayHoliday);
         return this._todayHoliday;
       } catch (error) {
         console.warn('Error loading holiday:', error);
