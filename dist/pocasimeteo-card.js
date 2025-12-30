@@ -2724,9 +2724,9 @@
       // Calculate icon density step
       let iconStep = 1;
       if (chartData.length > 48) {
-        iconStep = 3; // Every 3rd icon for 49+ hours (16 icons at 48h)
+        iconStep = 4; // Every 4th icon for 49+ hours
       } else if (chartData.length > 24) {
-        iconStep = 2; // Every 2nd icon for 25-48 hours (18 icons at 36h)
+        iconStep = 3; // Every 3rd icon for 25-48 hours (12 icons at 36h)
       } else if (chartData.length > 18) {
         iconStep = 2; // Every 2nd icon for 19-24 hours
       }
