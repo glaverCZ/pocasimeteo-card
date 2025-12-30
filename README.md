@@ -113,15 +113,53 @@ Card zobrazí všechny modely, ale ALADIN bude předvybrán.
 
 ## ⚙️ Parametry
 
+### Základní parametry
+
+| Parametr | Typ | Výchozí | Popis |
+|----------|-----|---------|-------|
+| `entity` | string | - | **Povinné**. Entity ID weather entity (s nebo bez názvu modelu) |
+| `models` | array | Všech 7 | Vlastní seznam modelů k zobrazení |
+| `tile_order` | array | Viz níže | Vlastní pořadí dlaždic |
+
+### Reference entity (pro porovnání a auto-select)
+
 | Parametr | Typ | Popis |
 |----------|-----|-------|
-| `entity` | string | **Povinné**. Entity ID weather entity (s nebo bez názvu modelu) |
-| `best_match_temperature_entity` | string | Entity ID teplotního senzoru pro automatický výběr nejlepšího modelu |
-| `temperature_entity` | string | Entity ID teplotního senzoru pro zobrazení rozdílu |
-| `humidity_entity` | string | Entity ID vlhkostního senzoru pro zobrazení rozdílu |
-| `wind_speed_entity` | string | Entity ID senzoru rychlosti větru pro zobrazení rozdílu |
-| `tile_order` | array | Vlastní pořadí dlaždic |
-| `models` | array | Vlastní seznam modelů k zobrazení (volitelné) |
+| `best_match_temperature_entity` | string | Teplotní senzor pro automatický výběr nejlepšího modelu |
+| `temperature_entity` | string | Teplotní senzor pro zobrazení rozdílu v dlaždicích |
+| `reference_humidity_entity` | string | Vlhkostní senzor pro výpočet skóre modelu |
+| `reference_rainfall_entity` | string | Senzor srážek pro výpočet skóre modelu |
+| `reference_wind_entity` | string | Senzor rychlosti větru pro výpočet skóre modelu |
+| `reference_wind_gust_entity` | string | Senzor poryvů větru pro výpočet skóre modelu |
+| `reference_pressure_entity` | string | Senzor tlaku pro výpočet skóre modelu |
+| `reference_wind_direction_entity` | string | Senzor směru větru pro výpočet skóre modelu |
+
+**Poznámka:** `temperature_entity` a `humidity_entity` lze použít i bez `reference_` prefixu (zpětná kompatibilita).
+
+### Pokročilé nastavení
+
+| Parametr | Typ | Výchozí | Popis |
+|----------|-----|---------|-------|
+| `model_accuracy_weights` | object | Viz příklad | Váhy pro výpočet skóre modelu (%) |
+| `model_selection_hysteresis` | number | 30 | Počet minut, kdy se po manuálním výběru nevybírá automaticky |
+| `show_current_weather` | boolean | true | Zobrazit aktuální počasí |
+| `show_hourly_forecast` | boolean | true | Zobrazit hodinový graf |
+| `show_daily_forecast` | boolean | true | Zobrazit denní předpověď |
+| `hourly_hours` | number | 24 | Počet hodin pro hodinovou předpověď (1-72) |
+| `scale` | number | 1.0 | Zvětšení celé card (0.8 = -20%, 1.2 = +20%) |
+| `full_width` | boolean | false | Rozšířit card na plnou šířku |
+
+#### Příklad model_accuracy_weights
+
+```yaml
+model_accuracy_weights:
+  temperature: 30    # 30% váha teploty
+  humidity: 20       # 20% váha vlhkosti
+  precipitation: 20  # 20% váha srážek
+  wind: 15           # 15% váha větru
+  wind_gust: 10      # 10% váha poryvů
+  pressure: 5        # 5% váha tlaku
+```
 
 ### Dostupné dlaždice
 
