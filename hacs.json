@@ -1,7 +1,7 @@
 {
   "name": "PočasíMeteo Card",
   "content_in_root": true,
-  "filename": "pocasimeteo-card.js",
+  "filename": ["pocasimeteo-card.js", "pocasimeteo-icons.js"],
   "country": ["CZ"],
   "homeassistant": "2024.1.0",
   "render_readme": true
