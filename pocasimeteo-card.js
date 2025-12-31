@@ -1,4 +1,4 @@
-/*! PočasíMeteo Weather Card - HA 2024.1+ Compatible
+﻿/*! PočasíMeteo Weather Card - HA 2024.1+ Compatible
  * Version: 2.0.0
  * Built: 2024-11-25
  */
@@ -2464,9 +2464,10 @@
       }
 
       const img = document.createElement('img');
-      img.src = `${ICON_BASE_PATH}/${iconFileName}`;
+      // Use embedded Base64 icon if available, otherwise fallback to external URL
+      const iconName = iconFileName.replace('.png', '');
+      img.src = EMBEDDED_ICONS[iconName] || `${ICON_BASE_PATH}/${iconFileName}`;
       img.alt = condition || 'weather';
-      console.log(`[PočasíMeteo Card] Loading icon: ${img.src}`);
 
       // Fallback na emoji ikony pokud se obrázek nenačte
       img.onerror = () => {
@@ -2772,10 +2773,12 @@
                 resolve(img);
               };
               img.onerror = () => {
-                console.warn(`✗ Icon failed to load: ${iconFileName} (code: ${d.icon_code}) from ${ICON_BASE_PATH}`);
+                console.warn(`✗ Icon failed to load: ${iconFileName} (code: ${d.icon_code})`);
                 reject(d.icon_code);
               };
-              img.src = `${ICON_BASE_PATH}/${iconFileName}`;
+              // Use embedded Base64 icon if available, otherwise fallback to external URL
+              const iconName = iconFileName.replace('.png', '');
+              img.src = EMBEDDED_ICONS[iconName] || `${ICON_BASE_PATH}/${iconFileName}`;
             });
             iconLoadPromises.push(iconPromise);
           }
@@ -3030,8 +3033,10 @@
 
           // Get PNG icon
           const iconFileName = this._getWeatherIconFileName(d.icon_code);
+          const iconName = iconFileName.replace('.png', '');
+          const iconSrc = EMBEDDED_ICONS[iconName] || `${ICON_BASE_PATH}/${iconFileName}`;
           const iconImg = this._imageCache[iconFileName] ?
-            `<img src="${ICON_BASE_PATH}/${iconFileName}" style="width: 18px; height: 18px; margin-bottom: 2px; display: block; margin-left: auto; margin-right: auto;" alt="weather">` :
+            `<img src="${iconSrc}" style="width: 18px; height: 18px; margin-bottom: 2px; display: block; margin-left: auto; margin-right: auto;" alt="weather">` :
             `<div style="font-size: 20px; margin-bottom: 2px;">${this._getEmojiIcon(d.icon_code, d.condition)}</div>`;
 
           tooltip.innerHTML = `
