@@ -29,6 +29,19 @@
       this._computedValuesCache = {}; // Cache pro počítané hodnoty (precipitation_value, wind_max, gust_max)
       this._displayedValuesCache = {}; // Cache pro zobrazené hodnoty aby se neobnovovaly zbytečně
       this._modelScores = {}; // Cache pro skóre modelů: {modelName: {score: 85, tier: 'green', breakdown: {...}}}
+      this._iconBasePath = this._getIconBasePath(); // Dynamicky detekovaná cesta k ikonám
+    }
+
+    _getIconBasePath() {
+      // Najdi script tag s pocasimeteo-card.js a získej jeho skutečnou URL
+      const scripts = document.querySelectorAll('script[src*="pocasimeteo-card"]');
+      if (scripts.length > 0) {
+        const scriptSrc = scripts[scripts.length - 1].src;
+        const basePath = scriptSrc.substring(0, scriptSrc.lastIndexOf('/'));
+        return `${basePath}/icons`;
+      }
+      // Fallback pro případ, že nenajdeme script tag
+      return '/hacsfiles/pocasimeteo-card/icons';
     }
 
     setConfig(config) {
@@ -2439,7 +2452,7 @@
       }
 
       const img = document.createElement('img');
-      img.src = `./icons/${iconFileName}`;
+      img.src = `${this._iconBasePath}/${iconFileName}`;
       img.alt = condition || 'weather';
 
       // Fallback na emoji ikony pokud se obrázek nenačte
@@ -2749,7 +2762,7 @@
                 console.warn(`✗ Icon failed to load: ${iconFileName} (code: ${d.icon_code})`);
                 reject(d.icon_code);
               };
-              img.src = `./icons/${iconFileName}`;
+              img.src = `${this._iconBasePath}/${iconFileName}`;
             });
             iconLoadPromises.push(iconPromise);
           }
@@ -3005,7 +3018,7 @@
           // Get PNG icon
           const iconFileName = this._getWeatherIconFileName(d.icon_code);
           const iconImg = this._imageCache[iconFileName] ?
-            `<img src="./icons/${iconFileName}" style="width: 18px; height: 18px; margin-bottom: 2px; display: block; margin-left: auto; margin-right: auto;" alt="weather">` :
+            `<img src="${this._iconBasePath}/${iconFileName}" style="width: 18px; height: 18px; margin-bottom: 2px; display: block; margin-left: auto; margin-right: auto;" alt="weather">` :
             `<div style="font-size: 20px; margin-bottom: 2px;">${this._getEmojiIcon(d.icon_code, d.condition)}</div>`;
 
           tooltip.innerHTML = `
