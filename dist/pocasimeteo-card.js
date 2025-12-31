@@ -5,13 +5,14 @@
 
 (() => {
   // Detekuj base path IHNED při načtení modulu (kdy document.currentScript ještě existuje)
+  // Ikony jsou nyní přímo v dist/ (ne v dist/icons/) pro kompatibilitu s Cloudflare tunnel
   const ICON_BASE_PATH = (() => {
     // Zkus document.currentScript (funguje během inicializace)
     if (document.currentScript && document.currentScript.src) {
       const scriptSrc = document.currentScript.src;
       const basePath = scriptSrc.substring(0, scriptSrc.lastIndexOf('/'));
       console.log(`[PočasíMeteo Card] Detected base path from currentScript: ${basePath}`);
-      return `${basePath}/icons`;
+      return basePath;
     }
 
     // Fallback: Hledej script tag
@@ -20,12 +21,12 @@
       const scriptSrc = scripts[scripts.length - 1].src;
       const basePath = scriptSrc.substring(0, scriptSrc.lastIndexOf('/'));
       console.log(`[PočasíMeteo Card] Detected base path from script tag: ${basePath}`);
-      return `${basePath}/icons`;
+      return basePath;
     }
 
     // Poslední fallback
-    console.warn('[PočasíMeteo Card] Could not detect base path, using default /hacsfiles/pocasimeteo-card/icons');
-    return '/hacsfiles/pocasimeteo-card/icons';
+    console.warn('[PočasíMeteo Card] Could not detect base path, using default /hacsfiles/pocasimeteo-card');
+    return '/hacsfiles/pocasimeteo-card';
   })();
 
   class PocasimeteoCard extends HTMLElement {
