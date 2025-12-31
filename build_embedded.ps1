@@ -10,14 +10,14 @@ if ($pngFiles.Count -eq 0) {
 
 Write-Host "Found $($pngFiles.Count) PNG files"
 
-# Read the main JS file
-$jsFile = "pocasimeteo-card.js"
-if (!(Test-Path $jsFile)) {
-    Write-Host "Error: $jsFile not found!"
+# Read the SOURCE JS file from src/
+$sourceFile = "src\pocasimeteo-card.js"
+if (!(Test-Path $sourceFile)) {
+    Write-Host "Error: $sourceFile not found!"
     exit 1
 }
 
-$jsContent = Get-Content $jsFile -Raw -Encoding UTF8
+$jsContent = Get-Content $sourceFile -Raw -Encoding UTF8
 
 # Generate Base64 data object
 $base64Data = @()
@@ -55,9 +55,10 @@ if ($jsContent -match $pattern) {
     exit 1
 }
 
-# Write the modified JS file with UTF-8 without BOM
+# Write the modified JS file to ROOT with UTF-8 without BOM
+$outputFile = "pocasimeteo-card.js"
 $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
-[System.IO.File]::WriteAllText($jsFile, $newContent, $Utf8NoBomEncoding)
+[System.IO.File]::WriteAllText($outputFile, $newContent, $Utf8NoBomEncoding)
 
-Write-Host "SUCCESS: Embedded $($pngFiles.Count) icons into $jsFile"
+Write-Host "SUCCESS: Embedded $($pngFiles.Count) icons into $outputFile"
 Write-Host "File size: $([math]::Round(($newContent.Length) / 1KB, 1)) KB"
