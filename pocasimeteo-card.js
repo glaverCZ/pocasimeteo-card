@@ -4,6 +4,8 @@
  */
 
 (() => {
+  console.log('[PočasíMeteo Card] Version 2.2.3 loading...');
+
   // Detekuj base path IHNED při načtení modulu (kdy document.currentScript ještě existuje)
   // Ikony jsou nyní přímo v dist/ (ne v dist/icons/) pro kompatibilitu s Cloudflare tunnel
   const ICON_BASE_PATH = (() => {
@@ -28,6 +30,13 @@
     console.warn('[PočasíMeteo Card] Could not detect base path, using default /hacsfiles/pocasimeteo-card');
     return '/hacsfiles/pocasimeteo-card';
   })();
+
+  // Debug: Check if EMBEDDED_ICONS exists
+  if (typeof EMBEDDED_ICONS !== 'undefined') {
+    console.log(`[PočasíMeteo Card] ✓ EMBEDDED_ICONS loaded with ${Object.keys(EMBEDDED_ICONS).length} icons`);
+  } else {
+    console.warn('[PočasíMeteo Card] ✗ EMBEDDED_ICONS not found - will load from URLs');
+  }
 
   class PocasimeteoCard extends HTMLElement {
     constructor() {
