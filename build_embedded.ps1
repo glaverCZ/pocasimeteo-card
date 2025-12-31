@@ -19,6 +19,10 @@ if (!(Test-Path $sourceFile)) {
 
 $jsContent = Get-Content $sourceFile -Raw -Encoding UTF8
 
+# Replace window.POCASIMETEO_EMBEDDED_ICONS with local EMBEDDED_ICONS
+$jsContent = $jsContent -replace "typeof window\.POCASIMETEO_EMBEDDED_ICONS !== 'undefined' && window\.POCASIMETEO_EMBEDDED_ICONS\[iconKey\]", "typeof EMBEDDED_ICONS !== 'undefined' && EMBEDDED_ICONS[iconKey]"
+$jsContent = $jsContent -replace "window\.POCASIMETEO_EMBEDDED_ICONS\[iconKey\]", "EMBEDDED_ICONS[iconKey]"
+
 # Generate Base64 data object
 $base64Data = @()
 $totalSize = 0

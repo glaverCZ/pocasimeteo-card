@@ -2593,9 +2593,9 @@
 
       // Check for embedded icons (loaded from pocasimeteo-icons.js)
       const iconKey = iconFileName.endsWith('.png') ? iconFileName.slice(0, -4) : iconFileName;
-      if (typeof window.POCASIMETEO_EMBEDDED_ICONS !== 'undefined' && window.POCASIMETEO_EMBEDDED_ICONS[iconKey]) {
+      if (typeof EMBEDDED_ICONS !== 'undefined' && EMBEDDED_ICONS[iconKey]) {
         // Use embedded Base64 icon
-        img.src = window.POCASIMETEO_EMBEDDED_ICONS[iconKey];
+        img.src = EMBEDDED_ICONS[iconKey];
       } else {
         // Fallback to external URL
         img.src = `${ICON_BASE_PATH}/${iconFileName}`;
@@ -2914,9 +2914,9 @@
 
               // Check for embedded icons (loaded from pocasimeteo-icons.js)
               const iconKey = iconFileName.endsWith('.png') ? iconFileName.slice(0, -4) : iconFileName;
-              if (typeof window.POCASIMETEO_EMBEDDED_ICONS !== 'undefined' && window.POCASIMETEO_EMBEDDED_ICONS[iconKey]) {
+              if (typeof EMBEDDED_ICONS !== 'undefined' && EMBEDDED_ICONS[iconKey]) {
                 // Use embedded Base64 icon
-                img.src = window.POCASIMETEO_EMBEDDED_ICONS[iconKey];
+                img.src = EMBEDDED_ICONS[iconKey];
               } else {
                 // Fallback to external URL
                 img.src = `${ICON_BASE_PATH}/${iconFileName}`;
