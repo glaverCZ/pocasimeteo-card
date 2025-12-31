@@ -2593,13 +2593,24 @@
       }
 
       const img = document.createElement('img');
-      img.src = `${ICON_BASE_PATH}/${iconFileName}`;
+
+      // Check EMBEDDED_ICONS first (remove .png extension for lookup)
+      const iconKey = iconFileName.endsWith('.png') ? iconFileName.slice(0, -4) : iconFileName;
+      if (typeof EMBEDDED_ICONS !== 'undefined' && EMBEDDED_ICONS[iconKey]) {
+        // Use embedded Base64 icon
+        img.src = EMBEDDED_ICONS[iconKey];
+      } else {
+        // Fallback to external URL
+        img.src = `${ICON_BASE_PATH}/${iconFileName}`;
+      }
+
       img.alt = condition || 'weather';
-      console.log(`[PočasíMeteo Card] Loading icon: ${img.src}`);
 
       // Fallback na emoji ikony pokud se obrázek nenačte
       img.onerror = () => {
+        console.log(`✗ Icon failed to load: ${iconFileName} (code: ${iconCode})`);
         iconEl.innerHTML = this._getEmojiIcon(iconCode, condition);
+        console.log(`⚠ Using emoji fallback for code: ${iconCode}`);
       };
 
       iconEl.innerHTML = '';
@@ -2901,10 +2912,19 @@
                 resolve(img);
               };
               img.onerror = () => {
-                console.warn(`✗ Icon failed to load: ${iconFileName} (code: ${d.icon_code}) from ${ICON_BASE_PATH}`);
+                console.warn(`✗ Icon failed to load: ${iconFileName} (code: ${d.icon_code})`);
                 reject(d.icon_code);
               };
-              img.src = `${ICON_BASE_PATH}/${iconFileName}`;
+
+              // Check EMBEDDED_ICONS first (remove .png extension for lookup)
+              const iconKey = iconFileName.endsWith('.png') ? iconFileName.slice(0, -4) : iconFileName;
+              if (typeof EMBEDDED_ICONS !== 'undefined' && EMBEDDED_ICONS[iconKey]) {
+                // Use embedded Base64 icon
+                img.src = EMBEDDED_ICONS[iconKey];
+              } else {
+                // Fallback to external URL
+                img.src = `${ICON_BASE_PATH}/${iconFileName}`;
+              }
             });
             iconLoadPromises.push(iconPromise);
           }
@@ -3159,9 +3179,15 @@
 
           // Get PNG icon
           const iconFileName = this._getWeatherIconFileName(d.icon_code);
-          const iconImg = this._imageCache[iconFileName] ?
-            `<img src="${ICON_BASE_PATH}/${iconFileName}" style="width: 18px; height: 18px; margin-bottom: 2px; display: block; margin-left: auto; margin-right: auto;" alt="weather">` :
-            `<div style="font-size: 20px; margin-bottom: 2px;">${this._getEmojiIcon(d.icon_code, d.condition)}</div>`;
+          let iconImg;
+          if (this._imageCache[iconFileName]) {
+            // Use the cached image's src (which is already Base64 or external URL)
+            const iconSrc = this._imageCache[iconFileName].src;
+            iconImg = `<img src="${iconSrc}" style="width: 18px; height: 18px; margin-bottom: 2px; display: block; margin-left: auto; margin-right: auto;" alt="weather">`;
+          } else {
+            // Fallback to emoji
+            iconImg = `<div style="font-size: 20px; margin-bottom: 2px;">${this._getEmojiIcon(d.icon_code, d.condition)}</div>`;
+          }
 
           tooltip.innerHTML = `
             <div style="font-size: 9px; font-weight: 600; margin-bottom: 3px;">${timeStr}</div>
