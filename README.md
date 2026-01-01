@@ -52,14 +52,17 @@ Pokročilá Lovelace custom card pro zobrazení předpovědi počasí z [Počas�
 
 ### Metoda 2: Manuální instalace
 
-1. Stáhněte `pocasimeteo-card.js` a složku `icons/` z [nejnovějšího release](https://github.com/glaverCZ/pocasimeteo-card/releases)
-2. Zkopírujte do `/config/www/` v Home Assistant
+1. Stáhněte `pocasimeteo-card.js` z [nejnovějšího release](https://github.com/glaverCZ/pocasimeteo-card/releases)
+2. Zkopírujte do `/config/www/community/pocasimeteo-card/` v Home Assistant
 3. Přidejte resource:
    - **Nastavení** → **Dashboardy** → **Resources** (⋮ vpravo nahoře)
    - Klikněte na **➕ Add Resource**
-   - URL: `/local/pocasimeteo-card.js`
+   - URL: `/hacsfiles/pocasimeteo-card/pocasimeteo-card.js`
    - Typ: **JavaScript Module**
-4. **Smažte cache** (Ctrl+F5)
+4. **Restartujte Home Assistant**
+5. **Smažte cache prohlížeče** (Ctrl+F5)
+
+**Poznámka:** Všech 125 PNG ikon je embedded přímo v JS souboru (621 KB), není potřeba stahovat žádné další soubory.
 
 ---
 
